@@ -1,18 +1,20 @@
 import json
 import requests
+from config import (
+    OPENROUTER_API_KEY,
+    OPENROUTER_URL,
+    MODEL_NAME,
+    HH_API_URL,
+    HH_API_REGION,
+    HH_API_VACANCIES_PER_PAGE
+)
 
-OPENROUTER_API_KEY = "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"
-
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-MODEL_NAME = "deepseek/deepseek-chat"
-
-HH_API_URL = "https://api.hh.ru/vacancies"
 
 def search_vacancies(keywords):
     params = {
         'text': ' '.join(keywords),
-        'area': 1, 
-        'per_page': 5,
+        'area': HH_API_REGION,
+        'per_page': HH_API_VACANCIES_PER_PAGE,
         'page': 0,
         'order_by': 'publication_time',
     }
@@ -24,7 +26,6 @@ def search_vacancies(keywords):
         return vacancies
     else:
         return None
-    
 
 
 def build_prompt(profile: dict) -> str:
@@ -86,14 +87,8 @@ def analyze_profile_with_ai(profile: dict) -> dict:
     payload = {
         "model": MODEL_NAME,
         "messages": [
-            {
-                "role": "system",
-                "content": "Ты карьерный AI-консультант. Отвечай только валидным JSON."
-            },
-            {
-                "role": "user",
-                "content": build_prompt(profile)
-            }
+            {"role": "system", "content": "Ты карьерный AI-консультант. Отвечай только валидным JSON."},
+            {"role": "user", "content": build_prompt(profile)}
         ],
         "temperature": 0.7
     }
@@ -109,7 +104,6 @@ def analyze_profile_with_ai(profile: dict) -> dict:
 
         data = response.json()
         content = data["choices"][0]["message"]["content"].strip()
-
         content = content.replace("```json", "").replace("```", "").strip()
 
         try:

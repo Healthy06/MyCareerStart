@@ -1,7 +1,5 @@
 import aiosqlite
-
-
-DB_PATH = "career_bot.db"
+from config import DB_PATH
 
 
 async def init_db():

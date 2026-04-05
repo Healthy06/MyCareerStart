@@ -11,6 +11,6 @@ MODEL_NAME = "deepseek/deepseek-chat"
 
 HH_API_URL = "https://api.hh.ru/vacancies"
 HH_API_REGION = 1
-HH_API_VACANCIES_PER_PAGE = 5
+HH_API_VACANCIES_PER_PAGE = 10
 
 DB_PATH = os.getenv("DB_PATH", "career_bot.db")

@@ -43,68 +43,6 @@ async def start_form(callback: CallbackQuery, state: FSMContext):
     )
     await callback.answer()
 
-@router.message(CareerForm.goal)
-async def process_goal(message: Message, state: FSMContext):
-    await state.update_data(goal=message.text)
-
-    data = await state.get_data()
-
-    
-    await save_user_profile(
-        tg_id=message.from_user.id,
-        age=data["age"],
-        education=data["education"],
-        interests=data["interests"],
-        subjects=data["subjects"],
-        skills=data["skills"],
-        work_format=data["work_format"],
-        goal=data["goal"]
-    )
-
-   
-    profile = {
-        "age": data["age"],
-        "education": data["education"],
-        "interests": data["interests"],
-        "subjects": data["subjects"],
-        "skills": data["skills"],
-        "work_format": data["work_format"],
-        "goal": data["goal"]
-    }
-
-    
-    ai_result = analyze_profile_with_ai(profile)
-
-    text = (
-        "✨ *Твой карьерный разбор*\n\n"
-        f"🎯 *Подходящие направления:*\n"
-        f"1. {ai_result['top_directions'][0] if len(ai_result['top_directions']) > 0 else '-'}\n"
-        f"2. {ai_result['top_directions'][1] if len(ai_result['top_directions']) > 1 else '-'}\n"
-        f"3. {ai_result['top_directions'][2] if len(ai_result['top_directions']) > 2 else '-'}\n\n"
-        f"🧠 *Краткий вывод:*\n{ai_result['summary']}\n\n"
-        f"💪 *Сильные стороны:*\n" +
-        "\n".join([f"• {item}" for item in ai_result.get("strengths", [])]) +
-        "\n\n📈 *Что прокачать:*\n" +
-        "\n".join([f"• {item}" for item in ai_result.get("skills_to_improve", [])]) +
-        "\n\n🚀 *Первые шаги:*\n" +
-        "\n".join([f"• {item}" for item in ai_result.get("first_steps", [])])
-    )
-
-
-    keywords = data["interests"].split(",")  
-    vacancies = search_vacancies(keywords)
-
-    if vacancies:
-        text += "\n\n📢 *Подходящие вакансии:*\n"
-        for idx, vacancy in enumerate(vacancies):
-            text += f"{idx + 1}. {vacancy['name']} - {vacancy['area']['name']}\n" \
-                    f"Ссылка: [Перейти](https://hh.ru/vacancy/{vacancy['id']})\n"
-    else:
-        text += "\n\n❗ К сожалению, не удалось найти вакансии."
-
-
-    await message.answer(text, parse_mode="Markdown")
-    await state.clear()
 
 @router.message(CareerForm.age)
 async def process_age(message: Message, state: FSMContext):
@@ -240,6 +178,17 @@ async def process_goal(message: Message, state: FSMContext):
         "\n\n🚀 *Первые шаги:*\n" +
         "\n".join([f"• {item}" for item in ai_result.get("first_steps", [])])
     )
+
+    keywords = data["interests"].split(",")  
+    vacancies = search_vacancies(keywords)
+
+    if vacancies:
+        text += "\n\n📢 *Подходящие вакансии:*\n"
+        for idx, vacancy in enumerate(vacancies):
+            text += f"{idx + 1}. {vacancy['name']} - {vacancy['area']['name']}\n" \
+                    f"Ссылка: [Перейти](https://hh.ru/vacancy/{vacancy['id']})\n"
+    else:
+        text += "\n\n❗ К сожалению, не удалось найти вакансии."
 
     await message.answer(text, parse_mode="Markdown")
     await state.clear()

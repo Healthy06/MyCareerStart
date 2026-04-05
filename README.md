@@ -1,3 +1,5 @@
+# Команда The Logic Legion
+
 ```cmd
 pip install aiogram aiosqlite python-dotenv requests
 ```
